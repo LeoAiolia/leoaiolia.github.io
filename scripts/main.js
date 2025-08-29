@@ -17,6 +17,7 @@ function createParagraph() {
     button.addEventListener("click", createParagraph);
   }
 */
+
 /*
   写法1
   document.querySelector("html").addEventListener("click", function () {
@@ -27,7 +28,7 @@ function createParagraph() {
   document.querySelector("html").addEventListener("click",  () => {
     alert("别戳我，我怕疼！");
   });
-  */
+*/
 
 let myButton = document.querySelector("button");
 myButton.onclick = function () {
