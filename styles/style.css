@@ -516,14 +516,14 @@ li {
 
 /* 输入表单 */
 .guess-form {
+  width: 100%;
   margin-bottom: 24px;
 }
 
 .input-group {
   display: flex;
   gap: 12px;
-  max-width: 480px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .guess-input {
@@ -579,9 +579,7 @@ li {
   flex-direction: column;
   gap: 12px;
   margin-bottom: 24px;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 }
 
 .result-banner {
