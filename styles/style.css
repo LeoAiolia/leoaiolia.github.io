@@ -157,17 +157,18 @@ li {
 /* 导航卡片 */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 26px 24px;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 12px 14px;
   border: 1px solid var(--border-card);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: linear-gradient(
     160deg,
     rgba(255, 255, 255, 0.09),
@@ -176,6 +177,7 @@ li {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: inherit;
+  text-align: center;
   text-decoration: none;
   transition:
     transform var(--transition),
@@ -192,12 +194,12 @@ li {
 .card-icon {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 6px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 2px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
-  font-size: 26px;
+  font-size: 20px;
   line-height: 1;
 }
 
@@ -259,20 +261,15 @@ li {
 
 .card-title {
   color: var(--text-strong);
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.card-desc {
-  color: var(--text-weak);
   font-size: 14px;
-  line-height: 1.6;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .card-arrow {
-  margin-top: 14px;
+  margin-top: 4px;
   color: var(--text-weak);
-  font-size: 18px;
+  font-size: 14px;
   transition:
     transform var(--transition),
     color var(--transition);
@@ -364,6 +361,18 @@ li {
 }
 
 /* 移动端适配 */
+@media (max-width: 880px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 520px) {
   .home {
     padding-top: 48px;
@@ -371,5 +380,10 @@ li {
 
   .hero {
     padding: 24px 0 40px;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 }
