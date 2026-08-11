@@ -662,10 +662,66 @@ li {
   animation: fade-up 0.25s ease;
 }
 
+.history-pill.pill-low {
+  border-color: rgba(34, 211, 238, 0.4);
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--accent-cyan);
+}
+
+.history-pill.pill-high {
+  border-color: rgba(251, 146, 60, 0.4);
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+}
+
+.history-pill.pill-correct {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+}
+
 .history-empty {
   color: var(--text-weak);
   font-size: 13px;
   font-style: italic;
+}
+
+/* 难度选择器 */
+.diff-section {
+  margin-bottom: 24px;
+}
+
+.diff-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-weak);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.diff-btn:hover {
+  border-color: var(--border-card-hover);
+  color: var(--text-strong);
+}
+
+.diff-btn.active {
+  border-color: var(--accent-cyan);
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--glow-cyan);
 }
 
 /* 重置按钮容器 */
@@ -701,6 +757,52 @@ li {
     rgba(167, 139, 250, 0.35),
     rgba(167, 139, 250, 0.15)
   );
+}
+
+/* 微特效与震动动画 */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.shake {
+  animation: shake 0.4s ease;
+}
+
+@keyframes win-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(52, 211, 153, 0.6);
+  }
+}
+
+.result-success {
+  animation:
+    fade-up 0.3s ease,
+    win-glow 1.5s infinite alternate;
+}
+
+/* 全屏胜利彩花 Canvas */
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
 }
 
 @media (max-width: 520px) {

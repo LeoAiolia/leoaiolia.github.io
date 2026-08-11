@@ -8,6 +8,9 @@
   </head>
 
   <body>
+    <!-- 胜利彩花动画 Canvas -->
+    <canvas id="confettiCanvas"></canvas>
+
     <div class="page-container">
       <!-- 顶部返回导航 -->
       <nav class="page-nav">
@@ -20,13 +23,37 @@
       <header class="page-header">
         <span class="game-badge">MINI GAME</span>
         <h1 class="page-title">🎯 猜数字游戏</h1>
-        <p class="page-desc">
-          系统随机生成了 1 ~ 100 之间的自然数，您有 <strong>10 次</strong> 机会猜中它。
+        <p id="gameRulesDesc" class="page-desc">
+          系统随机生成了 <strong id="rangeRule">1 ~ 100</strong> 之间的自然数，您有
+          <strong id="attemptsRule">10 次</strong> 机会猜中它。
         </p>
       </header>
 
+      <!-- 难度选择器 -->
+      <div class="diff-section">
+        <div class="diff-selector" role="tablist" aria-label="难度选择">
+          <button
+            type="button"
+            class="diff-btn active"
+            data-max="100"
+            data-attempts="10"
+          >
+            标准 (1-100)
+          </button>
+          <button type="button" class="diff-btn" data-max="50" data-attempts="10">
+            简单 (1-50)
+          </button>
+          <button type="button" class="diff-btn" data-max="500" data-attempts="8">
+            困难 (1-500)
+          </button>
+          <button type="button" class="diff-btn" data-max="1000" data-attempts="7">
+            极难 (1-1000)
+          </button>
+        </div>
+      </div>
+
       <!-- 游戏主卡片 -->
-      <main class="game-card">
+      <main id="gameCard" class="game-card">
         <!-- 仪表盘 -->
         <div class="game-status">
           <div class="status-item">
@@ -34,8 +61,12 @@
             <span id="attemptsLeft" class="status-value highlight">10 / 10</span>
           </div>
           <div class="status-item">
-            <span class="status-label">数字范围</span>
-            <span class="status-value">1 - 100</span>
+            <span class="status-label">安全区间</span>
+            <span id="safeRange" class="status-value">1 - 100</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">最佳纪录</span>
+            <span id="bestRecord" class="status-value">暂无</span>
           </div>
         </div>
 
@@ -67,7 +98,7 @@
 
         <!-- 历史记录区 -->
         <div class="history-section">
-          <h2 class="history-title">历史猜测记录</h2>
+          <h2 class="history-title">历史猜测轨迹</h2>
           <div id="historyPills" class="history-pills">
             <span class="history-empty">尚无猜测记录</span>
           </div>
@@ -83,61 +114,201 @@
     </div>
 
     <script>
-      let randomNumber = Math.floor(Math.random() * 100) + 1;
+      // 游戏状态变量
+      let currentMax = 100;
+      let maxAttempts = 10;
+      let randomNumber = Math.floor(Math.random() * currentMax) + 1;
       let guessCount = 1;
-      const MAX_ATTEMPTS = 10;
+      let minRange = 1;
+      let maxRange = currentMax;
 
+      // DOM 元素引用
+      const gameCard = document.getElementById("gameCard");
       const guessField = document.getElementById("guessField");
       const guessSubmit = document.getElementById("guessSubmit");
       const guessForm = document.getElementById("guessForm");
       const attemptsLeft = document.getElementById("attemptsLeft");
+      const safeRange = document.getElementById("safeRange");
+      const bestRecord = document.getElementById("bestRecord");
       const lastResult = document.getElementById("lastResult");
       const lowOrHi = document.getElementById("lowOrHi");
       const historyPills = document.getElementById("historyPills");
       const resetContainer = document.getElementById("resetContainer");
       const resetButton = document.getElementById("resetButton");
+      const diffBtns = document.querySelectorAll(".diff-btn");
+      const rangeRule = document.getElementById("rangeRule");
+      const attemptsRule = document.getElementById("attemptsRule");
 
+      // 初始化战绩显示
+      updateBestRecordDisplay();
+
+      // 切换难度按钮事件监听
+      diffBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          diffBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentMax = Number(btn.getAttribute("data-max"));
+          maxAttempts = Number(btn.getAttribute("data-attempts"));
+          rangeRule.textContent = `1 ~ ${currentMax}`;
+          attemptsRule.textContent = `${maxAttempts} 次`;
+          resetGame();
+        });
+      });
+
+      // 触发震动小特效
+      function triggerShake() {
+        gameCard.classList.remove("shake");
+        void gameCard.offsetWidth; // 触发 reflow
+        gameCard.classList.add("shake");
+      }
+
+      // 胜利粒子彩花特效 (Canvas 绘图)
+      function triggerConfetti() {
+        const canvas = document.getElementById("confettiCanvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const colors = ["#22d3ee", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"];
+
+        for (let i = 0; i < 90; i++) {
+          particles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 3,
+            vx: (Math.random() - 0.5) * 14,
+            vy: (Math.random() - 0.7) * 14,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: 1,
+            decay: Math.random() * 0.015 + 0.008
+          });
+        }
+
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let active = false;
+          particles.forEach((p) => {
+            if (p.alpha > 0) {
+              active = true;
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vy += 0.25; // 重力加速度
+              p.alpha -= p.decay;
+              ctx.save();
+              ctx.globalAlpha = Math.max(0, p.alpha);
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+          });
+          if (active) {
+            requestAnimationFrame(animate);
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+        animate();
+      }
+
+      // 本地战绩读取与刷新
+      function updateBestRecordDisplay() {
+        const key = `guess_game_best_${currentMax}`;
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          bestRecord.textContent = `${saved} 次`;
+        } else {
+          bestRecord.textContent = "暂无";
+        }
+      }
+
+      // 保存最佳纪录
+      function saveBestRecord(attempts) {
+        const key = `guess_game_best_${currentMax}`;
+        const saved = localStorage.getItem(key);
+        if (!saved || attempts < Number(saved)) {
+          localStorage.setItem(key, attempts);
+          updateBestRecordDisplay();
+        }
+      }
+
+      // 核心检查逻辑
       function checkGuess(e) {
         if (e) e.preventDefault();
         const userGuess = Number(guessField.value);
-        if (!userGuess || userGuess < 1 || userGuess > 100) return;
+
+        // 输入校验
+        if (!userGuess || userGuess < 1 || userGuess > currentMax) {
+          triggerShake();
+          return;
+        }
 
         if (guessCount === 1) {
           historyPills.innerHTML = "";
         }
 
+        let statusClass = "";
+        let pillText = "";
+
+        if (userGuess === randomNumber) {
+          statusClass = "pill-correct";
+          pillText = `#${guessCount}: ${userGuess} 🎉`;
+        } else if (userGuess < randomNumber) {
+          statusClass = "pill-low";
+          pillText = `#${guessCount}: ${userGuess} 📉`;
+          minRange = Math.max(minRange, userGuess + 1);
+        } else {
+          statusClass = "pill-high";
+          pillText = `#${guessCount}: ${userGuess} 📈`;
+          maxRange = Math.min(maxRange, userGuess - 1);
+        }
+
+        // 添加彩调历史胶囊标签
         const pill = document.createElement("span");
-        pill.className = "history-pill";
-        pill.textContent = `#${guessCount}: ${userGuess}`;
+        pill.className = `history-pill ${statusClass}`;
+        pill.textContent = pillText;
         historyPills.appendChild(pill);
 
-        const remaining = MAX_ATTEMPTS - guessCount;
-        attemptsLeft.textContent = `${remaining} / ${MAX_ATTEMPTS}`;
+        // 更新剩余次数与动态安全区间
+        const remaining = maxAttempts - guessCount;
+        attemptsLeft.textContent = `${remaining} / ${maxAttempts}`;
+        safeRange.textContent = `${minRange} - ${maxRange}`;
+        guessField.placeholder = `输入 ${minRange} ~ ${maxRange} 之间的数字...`;
+        guessField.min = minRange;
+        guessField.max = maxRange;
 
+        // 判定结果
         if (userGuess === randomNumber) {
           lastResult.hidden = false;
           lastResult.className = "result-banner result-success";
-          lastResult.innerHTML = `🎉 恭喜你！猜对了！正确答案就是 <strong>${randomNumber}</strong>`;
+          lastResult.innerHTML = `🎉 恭喜你！在第 <strong>${guessCount}</strong> 次猜中了正确答案 <strong>${randomNumber}</strong>！`;
           lowOrHi.hidden = true;
+          saveBestRecord(guessCount);
+          triggerConfetti();
           setGameOver();
-        } else if (guessCount === MAX_ATTEMPTS) {
+        } else if (guessCount === maxAttempts) {
           lastResult.hidden = false;
           lastResult.className = "result-banner result-failed";
           lastResult.innerHTML = `💥 游戏结束！正确答案是 <strong>${randomNumber}</strong>`;
           lowOrHi.hidden = true;
+          triggerShake();
           setGameOver();
         } else {
           lastResult.hidden = false;
           lastResult.className = "result-banner result-wrong";
           lastResult.textContent = "猜错了，请根据提示再试一次！";
+          triggerShake();
 
           lowOrHi.hidden = false;
           if (userGuess < randomNumber) {
             lowOrHi.className = "hint-banner hint-low";
-            lowOrHi.innerHTML = `📉 数字 <strong>${userGuess}</strong> 猜低了！往大里猜 ↑`;
+            lowOrHi.innerHTML = `📉 数字 <strong>${userGuess}</strong> 猜低了！缩小范围至 ${minRange} ~ ${maxRange} ↑`;
           } else {
             lowOrHi.className = "hint-banner hint-high";
-            lowOrHi.innerHTML = `📈 数字 <strong>${userGuess}</strong> 猜高了！往小里猜 ↓`;
+            lowOrHi.innerHTML = `📈 数字 <strong>${userGuess}</strong> 猜高了！缩小范围至 ${minRange} ~ ${maxRange} ↓`;
           }
         }
 
@@ -154,8 +325,13 @@
 
       function resetGame() {
         guessCount = 1;
-        randomNumber = Math.floor(Math.random() * 100) + 1;
-        attemptsLeft.textContent = `${MAX_ATTEMPTS} / ${MAX_ATTEMPTS}`;
+        minRange = 1;
+        maxRange = currentMax;
+        randomNumber = Math.floor(Math.random() * currentMax) + 1;
+
+        attemptsLeft.textContent = `${maxAttempts} / ${maxAttempts}`;
+        safeRange.textContent = `${minRange} - ${maxRange}`;
+        updateBestRecordDisplay();
 
         lastResult.hidden = true;
         lastResult.textContent = "";
@@ -169,8 +345,12 @@
 
         guessField.disabled = false;
         guessSubmit.disabled = false;
+        guessField.min = 1;
+        guessField.max = currentMax;
         guessField.value = "";
+        guessField.placeholder = `输入 1 ~ ${currentMax} 之间的数字...`;
         guessField.focus();
+
         resetContainer.hidden = true;
       }
 
