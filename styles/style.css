@@ -241,6 +241,22 @@ li {
   );
 }
 
+.card-icon--orange {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 146, 60, 0.18),
+    rgba(251, 146, 60, 0.05)
+  );
+}
+
+.card-icon--blue {
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.18),
+    rgba(96, 165, 250, 0.05)
+  );
+}
+
 .card-title {
   color: var(--text-strong);
   font-size: 18px;
