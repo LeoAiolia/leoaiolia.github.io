@@ -387,3 +387,318 @@ li {
     gap: 12px;
   }
 }
+
+/* ==========================================================
+   子页面通用与猜数字游戏专属样式
+   ========================================================== */
+
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 20px 64px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-regular);
+  font-size: 14px;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.back-link:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  transform: translateX(-4px);
+}
+
+.page-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.game-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--accent-violet);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+.page-title {
+  margin: 14px 0 8px;
+  color: var(--text-strong);
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+}
+
+.page-desc {
+  margin: 0;
+  color: var(--text-weak);
+  font-size: 15px;
+}
+
+.page-desc strong {
+  color: var(--accent-cyan);
+}
+
+/* 游戏卡片容器 */
+.game-card {
+  padding: 32px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* 状态仪表盘 */
+.game-status {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 28px;
+  padding: 16px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  color: var(--text-weak);
+  font-size: 13px;
+}
+
+.status-value {
+  color: var(--text-strong);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.status-value.highlight {
+  color: var(--accent-cyan);
+}
+
+/* 输入表单 */
+.guess-form {
+  margin-bottom: 24px;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.guess-input {
+  flex: 1;
+  padding: 14px 20px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-strong);
+  font-size: 18px;
+  outline: none;
+  transition: all var(--transition);
+}
+
+.guess-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 16px var(--glow-cyan);
+}
+
+.guess-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.guess-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+  color: #070b14;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.guess-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--glow-cyan);
+}
+
+.guess-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 反馈消息 */
+.feedback-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.result-banner {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  animation: fade-up 0.3s ease;
+}
+
+.result-success {
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
+.result-failed {
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.result-wrong {
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--accent-amber);
+}
+
+.hint-banner {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  text-align: center;
+  animation: fade-up 0.3s ease;
+}
+
+.hint-low {
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--accent-cyan);
+}
+
+.hint-high {
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  background: rgba(251, 146, 60, 0.08);
+  color: #fb923c;
+}
+
+/* 历史猜测列表 */
+.history-section {
+  padding-top: 16px;
+  border-top: 1px solid var(--border-card);
+}
+
+.history-title {
+  margin: 0 0 12px;
+  color: var(--text-weak);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.history-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 36px;
+  align-items: center;
+}
+
+.history-pill {
+  padding: 6px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-strong);
+  font-size: 13px;
+  animation: fade-up 0.25s ease;
+}
+
+.history-empty {
+  color: var(--text-weak);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* 重置按钮容器 */
+.reset-container {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border: 1px solid var(--accent-violet);
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.2),
+    rgba(167, 139, 250, 0.05)
+  );
+  color: var(--accent-violet);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px var(--glow-violet);
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.35),
+    rgba(167, 139, 250, 0.15)
+  );
+}
+
+@media (max-width: 520px) {
+  .page-container {
+    padding: 24px 16px 40px;
+  }
+
+  .game-card {
+    padding: 20px 16px;
+  }
+
+  .input-group {
+    flex-direction: column;
+  }
+
+  .guess-btn {
+    justify-content: center;
+  }
+}
+

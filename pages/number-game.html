@@ -1,121 +1,178 @@
 <!doctype html>
-<html>
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-
-    <title>猜数字游戏</title>
-
-    <style>
-      html {
-        font-family: sans-serif;
-      }
-
-      body {
-        width: 50%;
-        max-width: 800px;
-        min-width: 480px;
-        margin: 0 auto;
-      }
-
-      .lastResult {
-        color: white;
-        padding: 3px;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>猜数字游戏 · leoaiolia</title>
+    <link href="../styles/style.css" rel="stylesheet" />
   </head>
 
   <body>
-    <h1>猜数字游戏</h1>
+    <div class="page-container">
+      <!-- 头部导航与标题 -->
+      <header class="page-header">
+        <a href="../index.html" class="back-link">
+          <span aria-hidden="true">←</span> 返回首页
+        </a>
+        <br />
+        <span class="game-badge">MINI GAME</span>
+        <h1 class="page-title">🎯 猜数字游戏</h1>
+        <p class="page-desc">
+          系统随机生成了 1 ~ 100 之间的自然数，您有 <strong>10 次</strong> 机会猜中它。
+        </p>
+      </header>
 
-    <p>
-      我刚才随机选定了一个100以内的自然数。看你能否在 10
-      次以内猜中它。每次我都会告诉你所猜的结果是高了还是低了。
-    </p>
+      <!-- 游戏主卡片 -->
+      <main class="game-card">
+        <!-- 仪表盘 -->
+        <div class="game-status">
+          <div class="status-item">
+            <span class="status-label">剩余次数</span>
+            <span id="attemptsLeft" class="status-value highlight">10 / 10</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">数字范围</span>
+            <span class="status-value">1 - 100</span>
+          </div>
+        </div>
 
-    <div class="form">
-      <label for="guessField">请猜数：</label>
-      <input type="text" id="guessField" class="guessField" />
-      <input type="submit" value="我猜" class="guessSubmit" />
+        <!-- 表单输入区 -->
+        <form id="guessForm" class="guess-form" onsubmit="return false;">
+          <div class="input-group">
+            <input
+              type="number"
+              id="guessField"
+              class="guess-input"
+              min="1"
+              max="100"
+              placeholder="输入 1 ~ 100 之间的数字..."
+              autocomplete="off"
+              required
+            />
+            <button type="submit" id="guessSubmit" class="guess-btn">
+              <span>提交猜测</span>
+              <span aria-hidden="true">🚀</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- 结果反馈区 -->
+        <div class="feedback-area">
+          <div id="lastResult" class="result-banner" hidden></div>
+          <div id="lowOrHi" class="hint-banner" hidden></div>
+        </div>
+
+        <!-- 历史记录区 -->
+        <div class="history-section">
+          <h2 class="history-title">历史猜测记录</h2>
+          <div id="historyPills" class="history-pills">
+            <span class="history-empty">尚无猜测记录</span>
+          </div>
+        </div>
+
+        <!-- 重置游戏按钮 -->
+        <div id="resetContainer" class="reset-container" hidden>
+          <button id="resetButton" class="reset-btn">
+            <span>🔄 开始新游戏</span>
+          </button>
+        </div>
+      </main>
     </div>
 
-    <div class="resultParas">
-      <p class="guesses"></p>
-      <p class="lastResult"></p>
-      <p class="lowOrHi"></p>
-    </div>
-  </body>
+    <script>
+      let randomNumber = Math.floor(Math.random() * 100) + 1;
+      let guessCount = 1;
+      const MAX_ATTEMPTS = 10;
 
-  <script>
-    let randomNumber = Math.floor(Math.random() * 100) + 1;
+      const guessField = document.getElementById("guessField");
+      const guessSubmit = document.getElementById("guessSubmit");
+      const guessForm = document.getElementById("guessForm");
+      const attemptsLeft = document.getElementById("attemptsLeft");
+      const lastResult = document.getElementById("lastResult");
+      const lowOrHi = document.getElementById("lowOrHi");
+      const historyPills = document.getElementById("historyPills");
+      const resetContainer = document.getElementById("resetContainer");
+      const resetButton = document.getElementById("resetButton");
 
-    console.log(randomNumber);
+      function checkGuess(e) {
+        if (e) e.preventDefault();
+        const userGuess = Number(guessField.value);
+        if (!userGuess || userGuess < 1 || userGuess > 100) return;
 
-    const guesses = document.querySelector(".guesses");
-    const lastResult = document.querySelector(".lastResult");
-    const lowOrHi = document.querySelector(".lowOrHi");
-    const guessSubmit = document.querySelector(".guessSubmit");
-    const guessField = document.querySelector(".guessField");
-
-    let guessCount = 1;
-    let resetButton;
-
-    function checkGuess() {
-      let userGuess = Number(guessField.value);
-      if (guessCount === 1) {
-        guesses.textContent = "上次猜的数：";
-      }
-      guesses.textContent += userGuess + " ";
-
-      if (userGuess === randomNumber) {
-        lastResult.textContent = "恭喜你！猜对了！";
-        lastResult.style.backgroundColor = "green";
-        lowOrHi.textContent = "";
-        setGameOver();
-      } else if (guessCount === 10) {
-        lastResult.textContent = "!!!游戏结束!!!";
-        setGameOver();
-      } else {
-        lastResult.textContent = "你猜错了！";
-        lastResult.style.backgroundColor = "red";
-        if (userGuess < randomNumber) {
-          lowOrHi.textContent = "你刚才猜低了！";
-        } else if (userGuess > randomNumber) {
-          lowOrHi.textContent = "你刚才猜高了！";
+        if (guessCount === 1) {
+          historyPills.innerHTML = "";
         }
-      }
-      guessCount++;
-      guessField.value = "";
-      guessField.focus();
-    }
-    guessSubmit.addEventListener("click", checkGuess);
 
-    function setGameOver() {
-      guessField.disabled = true;
-      guessSubmit.disabled = true;
-      resetButton = document.createElement("button");
-      resetButton.textContent = "开始新游戏";
-      document.body.appendChild(resetButton);
+        const pill = document.createElement("span");
+        pill.className = "history-pill";
+        pill.textContent = `#${guessCount}: ${userGuess}`;
+        historyPills.appendChild(pill);
+
+        const remaining = MAX_ATTEMPTS - guessCount;
+        attemptsLeft.textContent = `${remaining} / ${MAX_ATTEMPTS}`;
+
+        if (userGuess === randomNumber) {
+          lastResult.hidden = false;
+          lastResult.className = "result-banner result-success";
+          lastResult.innerHTML = `🎉 恭喜你！猜对了！正确答案就是 <strong>${randomNumber}</strong>`;
+          lowOrHi.hidden = true;
+          setGameOver();
+        } else if (guessCount === MAX_ATTEMPTS) {
+          lastResult.hidden = false;
+          lastResult.className = "result-banner result-failed";
+          lastResult.innerHTML = `💥 游戏结束！正确答案是 <strong>${randomNumber}</strong>`;
+          lowOrHi.hidden = true;
+          setGameOver();
+        } else {
+          lastResult.hidden = false;
+          lastResult.className = "result-banner result-wrong";
+          lastResult.textContent = "猜错了，请根据提示再试一次！";
+
+          lowOrHi.hidden = false;
+          if (userGuess < randomNumber) {
+            lowOrHi.className = "hint-banner hint-low";
+            lowOrHi.innerHTML = `📉 数字 <strong>${userGuess}</strong> 猜低了！往大里猜 ↑`;
+          } else {
+            lowOrHi.className = "hint-banner hint-high";
+            lowOrHi.innerHTML = `📈 数字 <strong>${userGuess}</strong> 猜高了！往小里猜 ↓`;
+          }
+        }
+
+        guessCount++;
+        guessField.value = "";
+        guessField.focus();
+      }
+
+      function setGameOver() {
+        guessField.disabled = true;
+        guessSubmit.disabled = true;
+        resetContainer.hidden = false;
+      }
+
+      function resetGame() {
+        guessCount = 1;
+        randomNumber = Math.floor(Math.random() * 100) + 1;
+        attemptsLeft.textContent = `${MAX_ATTEMPTS} / ${MAX_ATTEMPTS}`;
+
+        lastResult.hidden = true;
+        lastResult.textContent = "";
+        lastResult.className = "result-banner";
+
+        lowOrHi.hidden = true;
+        lowOrHi.textContent = "";
+        lowOrHi.className = "hint-banner";
+
+        historyPills.innerHTML = '<span class="history-empty">尚无猜测记录</span>';
+
+        guessField.disabled = false;
+        guessSubmit.disabled = false;
+        guessField.value = "";
+        guessField.focus();
+        resetContainer.hidden = true;
+      }
+
+      guessForm.addEventListener("submit", checkGuess);
       resetButton.addEventListener("click", resetGame);
-    }
-
-    function resetGame() {
-      guessCount = 1;
-
-      const resetParas = document.querySelectorAll(".resultParas p");
-      for (let i = 0; i < resetParas.length; i++) {
-        resetParas[i].textContent = "";
-      }
-      resetButton.parentNode.removeChild(resetButton);
-
-      guessField.disabled = false;
-      guessSubmit.disabled = false;
-      guessField.value = "";
-      guessField.focus();
-
-      lastResult.style.backgroundColor = "white";
-
-      randomNumber = Math.floor(Math.random() * 100) + 1;
-      console.log(randomNumber);
-    }
-  </script>
+    </script>
+  </body>
 </html>
